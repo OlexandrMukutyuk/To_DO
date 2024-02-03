@@ -40,12 +40,14 @@ class User:
 
 
     def updateTask(self, task_id, task,is_completed):
-        url = self.baseURL + '/create.task'
+        url = self.baseURL + '/update.task'
+        print(task_id)
         data = {'token': self.token, 'id': self.id, 'task_id' : task_id, 'task' : task,'is_completed' : is_completed }
         response = requests.put(url, data=data)
+        print(response)
         return response.status_code == 200
 
-        
+
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Привіт! Це To_du бот /login для авторизації.")

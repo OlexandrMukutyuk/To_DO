@@ -104,7 +104,7 @@ class UserController extends Controller
                 'token' => 'required|size:12',
                 'task_id' => 'required',
                 'task' => 'required|string|max:255',
-                'is_completed' => 'required|boolean',
+                'is_completed' => 'required',
             ]);
 
         } catch (ValidationException $e) {
