@@ -15,7 +15,6 @@ return new class extends Migration
 
     public function up(): void
     {
-        
         Schema::create('token_lists', function (Blueprint $table) {
             $table->id();
             //Токен доступу

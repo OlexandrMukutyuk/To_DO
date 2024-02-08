@@ -8,8 +8,6 @@ use App\Models\TaskList;
 
 class HomeController extends Controller
 {
-
-
     /**
      * Create a new controller instance.
      *
@@ -31,19 +29,23 @@ class HomeController extends Controller
         $tasks = TaskList::where('user_id', $user_id)->get();
 
         return view('home', ['tasks' => $tasks]);
-
     }
 
-    public function welcome(){
+    public function welcome()
+    {
         return view('welcome');
     }
 
-    public function createTask(){
+    public function createTask()
+    {
         return view('createTask');
     }
 
-    public function storeTask(Request $request){
-        if (!Auth::check()) { return redirect()->route('home')->with('error', 'Користувач не авторизований!');}
+    public function storeTask(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('home')->with('error', 'Користувач не авторизований!');
+        }
         try {
             $request->validate([
                 'task' => 'required|string|max:255',
@@ -62,10 +64,15 @@ class HomeController extends Controller
         }
     }
 
-    public function updateTask(Request $request,  $id){
-        if (!Auth::check()) { return redirect()->route('home')->with('error', 'Користувач не авторизований!');}
+    public function updateTask(Request $request, $id)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('home')->with('error', 'Користувач не авторизований!');
+        }
         $task = TaskList::find($id);
-        if (!$task) {return redirect()->route('home')->with('error', 'незнайдено такого запису у базі!');}
+        if (!$task) {
+            return redirect()->route('home')->with('error', 'незнайдено такого запису у базі!');
+        }
         try {
             $request->validate([
                 'task' => 'required|string|max:255',
@@ -82,5 +89,4 @@ class HomeController extends Controller
             return redirect()->route('home')->with('error', 'Помилка при додаванні у базу даних!');
         }
     }
-
 }

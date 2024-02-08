@@ -11,39 +11,38 @@ use App\Models\TokenList;
 
 class UserController extends Controller
 {
-    //
-
-
-    function index(){
+    public function index()
+    {
         return response()->json(['word' => 'перевірка Api']);
-
     }
 
-    function login(Request $request){
-        if (!$request->filled(['email', 'password'])){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+    public function login(Request $request)
+    {
+        if (!$request->filled(['email', 'password'])) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
 
         try {
             $request->validateWithBag('api', [
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
 
         $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($credentials)) { return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
 
         $user = Auth::user();
         $tokenList = TokenList::where('user_id', $user->id)->first();
 
         if ($tokenList) {
             $tokenValue = $tokenList->token;
-
-        }
-        else{
+        } else {
             $randomBytes = random_bytes(6);
             $randomString = bin2hex($randomBytes);
 
@@ -53,28 +52,34 @@ class UserController extends Controller
             ]);
             $tokenValue = $randomString;
         }
-        return response()->json(['token' => $tokenValue,'id'=>$user->id], 200);
+        return response()->json(['token' => $tokenValue,'id' => $user->id], 200);
     }
 
-    function getTask(Request $request){
-        if (!$request->filled(['token', 'id'])){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
-
+    public function getTask(Request $request)
+    {
+        if (!$request -> filled(['token', 'id'])) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
         try {
-            $request->validateWithBag('api', [
+            $request -> validateWithBag('api', [
                 'id' => 'required',
                 'token' => 'required|size:12',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
-        if(!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+        if (!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
         $tasks = TaskList::where('user_id', $request->id)->get();
         return response()->json(['task' => $tasks], 200);
     }
 
-    function storeTask(Request $request){
-        if (!$request->filled(['token', 'id', 'task'])){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+    public function storeTask(Request $request)
+    {
+        if (!$request->filled(['token', 'id', 'task'])) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
 
         try {
             $request->validateWithBag('api', [
@@ -82,21 +87,23 @@ class UserController extends Controller
                 'token' => 'required|size:12',
                 'task' => 'required|string|max:255',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
-        if(!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+        if (!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
         $task = TaskList::create([
             'user_id' => $request->id,
             'task' => $request->task,
         ]);
         return response()->json(['status' => 'succes','task' => $task], 200);
-
-
     }
-    function updateTask(Request $request){
-        if (!$request->filled(['token', 'id', 'task','is_completed','task_id'])){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+    public function updateTask(Request $request)
+    {
+        if (!$request->filled(['token', 'id', 'task','is_completed','task_id'])) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
 
         try {
             $request->validateWithBag('api', [
@@ -106,21 +113,21 @@ class UserController extends Controller
                 'task' => 'required|string|max:255',
                 'is_completed' => 'required',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
-        if(!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()){return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);}
+        if (!TokenList::where('user_id', $request->id)->where('token', $request->token)->first()) {
+            return response()->json(['error' => 'Неправильні дані аутентифікації'], 401);
+        }
         $task = TaskList::find($request->task_id);
-        if ($task){
+        if ($task) {
             $task->update([
                 'task' => $request->task,
                 'is_completed' => $request->is_completed,
             ]);
             return response()->json(['status' => 'succes','task' => $task], 200);
+        } else {
+            return response()->json(['error' => 'Неправильні дані запису'], 401);
         }
-        else{return response()->json(['error' => 'Неправильні дані запису'], 401);}
-
     }
-
 }
