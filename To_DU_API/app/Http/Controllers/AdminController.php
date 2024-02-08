@@ -17,6 +17,5 @@ class AdminController extends Controller
         $tasks = TaskList::all();
 
         return view('home', ['tasks' => $tasks]);
-
     }
 }
